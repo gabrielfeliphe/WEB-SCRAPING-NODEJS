@@ -7,7 +7,14 @@ const app = express()
 
 async function main() {
   console.log('iniciado')
-  const browser = await puppeteer.launch({headless: true});
+  //const browser = await puppeteer.launch({headless: true});
+  const browser = await puppeteer.launch({
+    'args' : [
+      '--no-sandbox',
+      '--disable-setuid-sandbox'
+    ]
+  });
+  
   const page = await browser.newPage();
   await page.setViewport({width: 1200, height: 720});
   await page.goto('https://estudante.sesisenai.org.br/login', { waitUntil: 'networkidle0' }); // wait until page load
