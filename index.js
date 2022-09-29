@@ -46,7 +46,7 @@ async function main() {
   var MyDate = new Date();
   var today;
   
-  MyDate.setDate(MyDate.getDate());
+  MyDate.setDate(MyDate.getDate()-1);
   
   today = ('0' + MyDate.getDate()).slice(-2) + '/' + ('0' + (MyDate.getMonth()+1)).slice(-2) + '/' + MyDate.getFullYear();
   console.log(today)
