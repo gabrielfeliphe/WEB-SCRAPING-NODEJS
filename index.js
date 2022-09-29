@@ -32,7 +32,7 @@ async function main() {
   await page.select('#frequencia999956 > select', '6');
   await page.waitForTimeout(5000);
 
-  var absenceCount = 0;
+  var absenceCount = '-';
  
   var today = new Date();
   var dd = today.getDate();
@@ -56,6 +56,7 @@ async function main() {
     for(var y=0 ;y < row.length;y++){
         if(row[y][2] === '\n              F\n            ' && row[y][0] === today){
           console.log("faltou dia: " + row[y][0]+' Aula :' +row[y][1]+' Materia: '+row[y][3])
+          absenceCount += "faltou dia: " + row[y][0]+' Aula :' +row[y][1]+' Materia: '+row[y][3]+ '\n'
         }
     }
     console.log('fim do bloco '+i)
@@ -63,11 +64,17 @@ async function main() {
 
   await browser.close()
 
+  if(absenceCount === '-'){
+    absenceCount = 'não houveram faltas'
+  }
+  
+  return absenceCount
 }
 
 
 app.get('/', async function (req, res) {
-  await main();
+  var x = await main();
+  res.status(200).json(x)
 })
 
 app.listen(3000)
