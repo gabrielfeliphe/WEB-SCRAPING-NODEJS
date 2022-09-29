@@ -1,8 +1,13 @@
 const puppeteer = require('puppeteer');
 require('dotenv').config()
 
+const express = require('express')
+const app = express()
+
+
 async function main() {
-  const browser = await puppeteer.launch({headless: false});
+  console.log('iniciado')
+  const browser = await puppeteer.launch({headless: true});
   const page = await browser.newPage();
   await page.setViewport({width: 1200, height: 720});
   await page.goto('https://estudante.sesisenai.org.br/login', { waitUntil: 'networkidle0' }); // wait until page load
@@ -34,78 +39,35 @@ async function main() {
   var mm = today.getMonth()+1; 
   var yyyy = today.getFullYear();
   //today = dd+'/'+mm+'/'+yyyy;
-  today = '2022-08-25'
+  today = '25/08/2022'
   console.log(today)
 
   for(var i = 1; i<=6; i++){
     await page.click(`#frequencia999956 > div > div:nth-child(${i}) > a > span`);
     await page.waitForTimeout(800);
 
-    const data = await page.evaluate(() => {
-      var retorno = '';
-      let x = document.querySelector('#uc9999560 > table > tbody').rows;
-      for(var i = 1; i <= x.length; i++){
-        for(var y=1; y <= x.item(i).cells.length; y++){
-          retorno +=  x.item(i).cells.item(y) + ' | '
+    const selector = `#frequencia999956 > div > div:nth-child(${i}) > div > table > tbody > tr`;
+
+    const row = await page.$$eval(selector, trs => trs.map(tr => {
+        const tds = [...tr.getElementsByTagName('td')];
+        return tds.map(td => td.textContent);
+    }));
+
+    for(var y=0 ;y < row.length;y++){
+        if(row[y][2] === '\n              F\n            ' && row[y][0] === today){
+          console.log("faltou dia: " + row[y][0]+' Aula :' +row[y][1]+' Materia: '+row[y][3])
         }
-        retorno += '\n'
-      }
-      return retorno;
-    });
-
-    console.log('data valor '+data)
-
-    // console.log('entrou no for') 
+    }
+    console.log('fim do bloco '+i)
   }
 
-  // page.on('response', async (response) => {    
-  //   if (response.url() == "https://estudante.sesisenai.org.br/api/desempenho/frequencia/999956/7593"){
-  //       let x = await response.json(); 
-  //       for (const item of x) {
-  //         //console.log(item.dataAula)
-  //         if(today === item.dataAula && item.presente != 'P'){console.log('Falta | '+item.horarioAula+' | '+item.nomeUc)}
-  //       }
-  //       //console.log(await response.json()); 
-  //   }
-  // }); 
+  await browser.close()
 
-  // page.on('response', async (response) => {    
-  //   if (response.url() == "https://estudante.sesisenai.org.br/api/desempenho/frequencia/999956/7588"){
-  //        let x = await response.json(); 
-  //       for (const item of x) {
-  //         //console.log(item.dataAula)
-  //         if(today === item.dataAula && item.presente != 'P'){console.log('Falta | '+item.horarioAula+' | '+item.nomeUc)}
-  //       }
-  //   }
-  // });
-  
-  // page.on('response', async (response) => {    
-  //   if (response.url() == "https://estudante.sesisenai.org.br/api/desempenho/frequencia/999956/7589"){
-  //        let x = await response.json(); 
-  //       for (const item of x) {
-  //         //console.log(item.dataAula)
-  //         if(today === item.dataAula && item.presente != 'P'){console.log('Falta | '+item.horarioAula+' | '+item.nomeUc)}
-  //       }
-  //   }
-  // }); 
-  // page.on('response', async (response) => {    
-  //   if (response.url() == "https://estudante.sesisenai.org.br/api/desempenho/frequencia/999956/7591"){
-  //        let x = await response.json(); 
-  //       for (const item of x) {
-  //         //console.log(item.dataAula)
-  //         if(today === item.dataAula && item.presente != 'P'){console.log('Falta | '+item.horarioAula+' | '+item.nomeUc)}
-  //       }
-  //   }
-  // }); 
-
-  // page.on('response', async (response) => {    
-  //   if (response.url() == "https://estudante.sesisenai.org.br/api/desempenho/frequencia/999956/7592"){
-  //        let x = await response.json(); 
-  //       for (const item of x) {
-  //         //console.log(item.dataAula)
-  //         if(today === item.dataAula && item.presente != 'P'){console.log('Falta | '+item.horarioAula+' | '+item.nomeUc)}
-  //       }
-  //   }
-  // }); 
 }
-main();
+
+
+app.get('/', async function (req, res) {
+  await main();
+})
+
+app.listen(3000)
