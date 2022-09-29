@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
-    "puppeteer": "^18.0.5"
+    "puppeteer": "^18.0.5",
+    "takeout.js": "^1.2.2"
   }
 }
